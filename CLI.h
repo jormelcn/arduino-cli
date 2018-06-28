@@ -1,4 +1,8 @@
 
+#ifndef _CLI_H_
+
+#define _CLI_H_
+
 #define CLI_RESULT_ERROR    0
 #define CLI_RESULT_NONE     1
 #define CLI_RESULT_SUCCESS  2
@@ -21,6 +25,9 @@
 class CLI {
 
   private:
+
+  static CLI* _default;
+  static void (* _serialEvent)();
   
   byte workSpace[40];
   Stream* stream;
@@ -44,6 +51,8 @@ class CLI {
   boolean _scapeFound;
   boolean _dotFound;
   boolean _inString;
+
+  void init();
 
   boolean isSpace(char);
   boolean isValidTypeChar(char);
@@ -72,18 +81,28 @@ class CLI {
   void printMethod(Method* m);
   
   public :
+
+  static void parseDefaultCLI();
+  static void onSerialEvent(void (* f)());
+  
   CLI(Stream*);
-  void parseInput();
-  void setParameters(void*);
-  void setParameters(void*, void*);
-  void setParameters(void*, void*, void*);
-  void setParameters(void*, void*, void*, void*);
+  CLI(Stream &);
+  void parse();
   boolean addMethod(char*, void (* call)());
 
   void printMethods();
 
+  CLI operator >> (boolean &);
+  CLI operator >> (byte &);
   CLI operator >> (int &);
+  CLI operator >> (float &);
+  CLI operator >> (char &);
   CLI operator >> (char* &);
  
 };
 
+/*Easy Functions*/
+
+void serialEvent();
+
+#endif

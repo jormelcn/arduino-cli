@@ -1,11 +1,24 @@
-
 #include "CLI.h"
+
+CLI* CLI::_default = 0;
+void (* CLI::_serialEvent)() = 0;
 
 CLI::CLI(Stream* _stream){
   stream = _stream;
+  init();
+}
+
+CLI::CLI(Stream & _stream){
+  stream = &_stream;
+  init();
+}
+
+void CLI::init(){
   workStart = workSpace;
   methodList = MethodList();
   _commitReady = false;
+  if(stream == &Serial)
+    CLI::_default = this;
 }
 
 /*Characters Verification Functions*/
@@ -239,8 +252,9 @@ byte CLI::findNumber(char c){
     if(isSpace(c)){
       return CLI_RESULT_NONE;
     }
-    else if(c == '.' || isValidNumberChar(c)){
+    else if(c == '.' || c == '-' || isValidNumberChar(c)){
       _startFound = true;
+      if(c == '.') _dotFound = true;
       work[workIndex] = c;
       workIndex++;
       return CLI_RESULT_NONE;
@@ -279,18 +293,24 @@ void CLI::resetParseProcess(){
 /*Utility Functions*/
 
 byte CLI::statusForType(byte type){
-  if(type == METHOD_TYPE_BYTE)
+  if(type == METHOD_TYPE_BYTE){
     return CLI_WORK_BYTE;
-  if(type == METHOD_TYPE_CHAR)
+  }
+  if(type == METHOD_TYPE_CHAR){
     return CLI_WORK_CHAR;
-  if(type == METHOD_TYPE_INT)
+  }
+  if(type == METHOD_TYPE_INT){
     return CLI_WORK_INT;
-  if(type == METHOD_TYPE_FLOAT)
+  }
+  if(type == METHOD_TYPE_FLOAT){
     return CLI_WORK_FLOAT;
-  if(type == METHOD_TYPE_CHAR_P)
+  }
+  if(type == METHOD_TYPE_CHAR_P){
     return CLI_WORK_CHAR_P;
-  if(type == METHOD_TYPE_BOOLEAN)
+  }
+  if(type == METHOD_TYPE_BOOLEAN){
     return CLI_WORK_BOOLEAN;
+  }
   return 0;
 }
 
@@ -355,6 +375,7 @@ byte CLI::typeCode(char* type){
 
 /* Debug Functions */
 
+/*
 void CLI::printMethods(){
   MethodList list = methodList;
   while(true){
@@ -388,11 +409,11 @@ void CLI::printMethod(Method* m){
   }
   Serial.println();
 }
-
+*/
 
 /*User Functions*/
 
-void CLI::parseInput(){
+void CLI::parse(){
   while(stream->available()){
     char c = stream->read();
     if(c == _commit){
@@ -422,7 +443,7 @@ void CLI::parseInput(){
         workStatus = CLI_WORK_NEXT;
       }
     }
-    else if(workStatus == CLI_WORK_INT || workStatus == CLI_WORK_CHAR_P){
+    else if(workStatus == CLI_WORK_INT || workStatus == CLI_WORK_FLOAT || workStatus == CLI_WORK_BYTE || workStatus == CLI_WORK_CHAR_P){
       byte result; 
       
       if(workStatus == CLI_WORK_INT || workStatus == CLI_WORK_BYTE || workStatus == CLI_WORK_FLOAT)
@@ -445,6 +466,14 @@ void CLI::parseInput(){
       if(workStatus == CLI_WORK_INT){
         *((int*)work) = atoi(work);
         work = work + sizeof(int);  
+      }
+      else if(workStatus == CLI_WORK_FLOAT){
+        *((float*)work) = atof(work);
+        work = work + sizeof(float);  
+      }
+      else if(workStatus == CLI_WORK_BYTE){
+        *((byte*)work) = atoi(work);
+        work = work + sizeof(byte);  
       }
       else if(workStatus == CLI_WORK_CHAR_P){
         work = work + workIndex + 1;
@@ -554,13 +583,53 @@ boolean CLI::addMethod(char* prototype, void (* f)()){
   return true;
 }
 
+/* Load parametere Operator*/
+
+CLI CLI::operator >> (boolean & destiny){
+  setParameter((void*)&destiny);
+  return *this; 
+}
+  
+CLI CLI::operator >> (byte & destiny){
+  setParameter((void*)&destiny);
+  return *this; 
+}
+
 CLI CLI::operator >> (int & destiny){
-  setParameter(&destiny);
+  setParameter((void*)&destiny);
+  return *this; 
+}
+
+CLI CLI::operator >> (float & destiny){
+  setParameter((void*)&destiny);
+  return *this; 
+}
+
+CLI CLI::operator >> (char & destiny){
+  setParameter((void*)&destiny);
   return *this; 
 }
 
 CLI CLI::operator >> (char* & destiny){
-  setParameter(&destiny);
+  setParameter((void*)&destiny);
   return *this; 
 }
+
+/*Easy Functions*/
+
+static void CLI::onSerialEvent(void (* f)()){
+  _serialEvent = f;
+}
+
+static void CLI::parseDefaultCLI(){
+  if(_serialEvent)
+    _serialEvent();
+  else if(_default)
+    _default->parse();
+}
+
+void serialEvent(){
+  CLI::parseDefaultCLI();
+}
+
 
