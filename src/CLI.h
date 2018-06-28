@@ -20,7 +20,7 @@
 #define CLI_WORK_NEXT     10
 
 #include <Arduino.h>
-#include "lib/MethodList.h"
+#include "MethodList/MethodList.h"
 
 class CLI {
 

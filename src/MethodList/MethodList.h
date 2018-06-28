@@ -1,5 +1,5 @@
 
-#include "Method.h"
+#include "../Method/Method.h"
 
 class MethodList {
 
