@@ -1,0 +1,21 @@
+{
+  "name": "CLI",
+  "keywords": "interpreter, cli, arduino, parser, command",
+  "description": "Command Line Interpreter for Arduino",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jormelcn/arduino-cli"
+  },
+  "authors": [{
+    "name": "Jorge Narvaez",
+    "email": "jormelcn@gmail.com",
+    "mantainer" : true
+  }],
+  "frameworks": [
+    "arduino"
+  ],
+  "platforms": [
+    "atmelavr",
+    "teensy"
+  ]
+}

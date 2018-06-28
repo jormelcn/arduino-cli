@@ -1,0 +1,4 @@
+CLI	KEYWORD1
+addMethod	KEYWORD2
+parse	KEYWORD2
+onSerialEvent	KEYWORD2
