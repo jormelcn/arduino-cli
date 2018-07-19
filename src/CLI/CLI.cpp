@@ -1,8 +1,5 @@
 #include "CLI.h"
 
-CLI* CLI::_default = 0;
-void (* CLI::_serialEvent)() = 0;
-
 CLI::CLI(Stream* _stream){
   stream = _stream;
   init();
@@ -17,8 +14,6 @@ void CLI::init(){
   workStart = workSpace;
   methodList = MethodList();
   _commitReady = false;
-  if(stream == &Serial)
-    CLI::_default = this;
 }
 
 /*Characters Verification Functions*/
@@ -614,22 +609,3 @@ CLI CLI::operator >> (char* & destiny){
   setParameter((void*)&destiny);
   return *this; 
 }
-
-/*Easy Functions*/
-
-static void CLI::onSerialEvent(void (* f)()){
-  _serialEvent = f;
-}
-
-static void CLI::parseDefaultCLI(){
-  if(_serialEvent)
-    _serialEvent();
-  else if(_default)
-    _default->parse();
-}
-
-void serialEvent(){
-  CLI::parseDefaultCLI();
-}
-
-

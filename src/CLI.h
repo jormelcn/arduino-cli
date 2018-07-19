@@ -25,9 +25,6 @@
 class CLI {
 
   private:
-
-  static CLI* _default;
-  static void (* _serialEvent)();
   
   byte workSpace[40];
   Stream* stream;
@@ -81,9 +78,6 @@ class CLI {
   void printMethod(Method* m);
   
   public :
-
-  static void parseDefaultCLI();
-  static void onSerialEvent(void (* f)());
   
   CLI(Stream*);
   CLI(Stream &);

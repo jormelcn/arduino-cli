@@ -10,7 +10,7 @@ Para el correcto uso de esta libreria es necesario seguir 5 pasos:
 2. Instanciar un objeto CLI
 3. Definir los métodos que ejecutará el intérprete
 4. Agregar los métodos al interprete
-5. Ejecutar el interprete *
+5. Ejecutar el interprete
 
 ## Ejemplo de uso más simple
 
@@ -39,7 +39,8 @@ void setup() {
 }
 
 void loop(){
-
+  //Paso 5: Ejecutar el interprete
+  Console.parse();
 }
 ```
 
@@ -101,8 +102,6 @@ void loop(){
 }
 ```
 
-* Seguro que te has dado cuenta que en el ejemplo no se incluye en ningun lado la ejecución de "parse()", esto es porque la libreria CLI detecta automaticamente cuando se instancia un Objeto CLI usando el Objeto Serial, y para facilidad del programador, usa el método reservado "serialEvent" el cual se ejecuta automaticamente cuando hay datos disponibles en Serial, por lo que no es necesario llamar manualmente a "parse()" cuando se usa Serial.
-
 ### Un Ejemplo más detallado
 Imaginemos que queremos interpretar comandos de multiples puertos Seriales usando un Arduino Mega, el código seria el siguiente:
 
@@ -149,33 +148,12 @@ void setup() {
 }
 
 void loop(){
-  //Paso 5: Ejecutar interprete
+  //Paso 5: Ejecutar interpretes
   cmd1.parse();
-  //Como cmd fue creado con Serial, no es necesario llamar cmd.parse()
-  //Pero si lo haces, no afecta en nada.
-  //cmd.parse()
+  cmd.parse();
 
 }
 ```
-
-# SerialEvent
-
-Si por alguna razón, necesitas definir el método "SerialEvent" para leer los datos recibidos en Serial, no podrás hacerlo porque CLI lo define internamente. Pero puedes asignar un nuevo método que cumpla la misma función:
-
-```C++
-
-void mySerialEvent(){
-
-}
-
-void setup(){
-  
-  CLI::onSerialEvent(mySerialEvent);
-
-}
-
-```
-* Esto anulará la ejecución automatica de parse() para el CLI instanciado usando el objeto Serial.
 
 # Instalación
 Simplemente desgarga este repositorio como .zip y agregalo a arduino como librería desde: Programa > Incluir Librería > Añadir Librería .Zip
